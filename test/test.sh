@@ -23,3 +23,8 @@ teardown() {
     run $CDIFF $FILE1 $FILE1 > /dev/null
     [ $status -eq 0 ]
 }
+
+@test "Given more than two files Cdiff fails" {
+    run $CDIFF $FILE1 $FILE1 $FILE1 > /dev/null
+    [ $status -ne 0 ]
+}
