@@ -9,12 +9,17 @@ teardown() {
     rm -f $TMP_FILE
 }
 
-@test "Given no parameters Cdiff should fail" {
+@test "Given no parameters Cdiff fails" {
     run $CDIFF > /dev/null
     [ $status -ne 0 ]
 }
 
-@test "Given two existing file names Cdiff should not fail" {
+@test "Given a single file Cdiff fails" {
+    run $CDIFF $FILE1 > /dev/null
+    [ $status -ne 0 ]
+}
+
+@test "Given two existing file names Cdiff does not fail" {
     run $CDIFF $FILE1 $FILE1 > /dev/null
     [ $status -eq 0 ]
 }
