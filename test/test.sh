@@ -3,6 +3,7 @@
 CDIFF=build/cdiff
 TMP_FILE=.cdiff_test.tmp
 
+NON_EXISTING_FILE=CantFindMe
 FILE1=test/samples/helloworld.txt
 
 teardown() {
@@ -26,5 +27,10 @@ teardown() {
 
 @test "Given more than two files Cdiff fails" {
 	run $CDIFF $FILE1 $FILE1 $FILE1 > /dev/null
+	[ $status -ne 0 ]
+}
+
+@test "Given a non existing file as first parameter diff fails" {
+	run $CDIFF $NON_EXISTING_FILE $FILE1 > /dev/null
 	[ $status -ne 0 ]
 }
