@@ -34,3 +34,8 @@ teardown() {
 	run $CDIFF $NON_EXISTING_FILE $FILE1 > /dev/null
 	[ $status -ne 0 ]
 }
+
+@test "Given a non existing file as second parameter diff fails" {
+	run $CDIFF $FILE1 $NON_EXISTING_FILE > /dev/null
+	[ $status -ne 0 ]
+}
