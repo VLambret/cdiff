@@ -16,6 +16,8 @@ int main(int argc, char **argv) {
 		goto close_file1;
 	}
 
+	printf("Hello World !\n");
+
 	rt = 0;
 
 	fclose(file2);

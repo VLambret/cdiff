@@ -39,3 +39,8 @@ teardown() {
 	run $CDIFF $FILE1 $NON_EXISTING_FILE > /dev/null
 	[ $status -ne 0 ]
 }
+
+@test "Given two indentical files then cdiff outputs the exact content of the file" {
+	$CDIFF $FILE1 $FILE1 > $TMP_FILE
+	cmp $FILE1 $TMP_FILE
+}
