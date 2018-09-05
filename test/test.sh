@@ -50,3 +50,8 @@ teardown() {
 	$CDIFF $FILE2 $FILE2 > $TMP_FILE
 	diff $FILE2 $TMP_FILE
 }
+
+@test "Given two indentical multi-line files then outputs the content of the file" {
+	$CDIFF $MULTILINE_FILE $MULTILINE_FILE > $TMP_FILE
+	diff $MULTILINE_FILE $TMP_FILE
+}
