@@ -4,7 +4,8 @@ CDIFF=build/cdiff
 TMP_FILE=.cdiff_test.tmp
 
 NON_EXISTING_FILE=CantFindMe
-FILE1=test/samples/helloworld.txt
+FILE1=test/samples/inputs/helloworld.txt
+FILE2=test/samples/inputs/helloworld2.txt
 
 teardown() {
 	rm -f $TMP_FILE
@@ -43,4 +44,9 @@ teardown() {
 @test "Given two indentical files then cdiff outputs the exact content of the file" {
 	$CDIFF $FILE1 $FILE1 > $TMP_FILE
 	cmp $FILE1 $TMP_FILE
+}
+
+@test "Given two indentical files then cdiff outputs the exact content of the file (Other case)" {
+	$CDIFF $FILE2 $FILE2 > $TMP_FILE
+	cmp $FILE2 $TMP_FILE
 }
