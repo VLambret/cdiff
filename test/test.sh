@@ -6,6 +6,7 @@ TMP_FILE=.cdiff_test.tmp
 NON_EXISTING_FILE=CantFindMe
 FILE1=test/samples/inputs/helloworld.txt
 FILE2=test/samples/inputs/helloworld2.txt
+MULTILINE_FILE=test/samples/inputs/multiline.txt
 
 teardown() {
 	rm -f $TMP_FILE
