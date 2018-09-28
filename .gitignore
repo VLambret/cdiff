@@ -1,1 +1,5 @@
 build/*
+*.info
+*.gcda
+*.gcno
+coverage
