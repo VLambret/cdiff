@@ -28,8 +28,20 @@ void test_ThereIsNoDifferenceBetweenTwoIdenticalLines() {
 	loop_over_test_cases(givens);
 }
 
+void test_AddedSingleCharIsEmphazedWithBrackets() {
+	struct line_patterns givens[] = {
+		{.reference = "", .compared = "a", .expected = "[a]"},
+		{.reference = "toto", .compared = "atoto", .expected = "[a]toto"},
+		{.reference = "toto", .compared = "totob", .expected = "toto[b]"},
+		{.reference = "toto", .compared = "tcoto", .expected = "t[c]oto"},
+		END_OF_LINE_PATTERNS
+	};
+	loop_over_test_cases(givens);
+}
+
 int main() {
 	UnityBegin("Compare tests");
 	RUN_TEST(test_ThereIsNoDifferenceBetweenTwoIdenticalLines);
+	RUN_TEST(test_AddedSingleCharIsEmphazedWithBrackets);
 	return UnityEnd();
 }
