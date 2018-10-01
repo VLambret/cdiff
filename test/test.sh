@@ -1,15 +1,13 @@
 #!/usr/bin/env bats
 
 CDIFF=build/cdiff
-TMP_FILE=.cdiff_test.tmp
+TMP_STRING=.cdiff_test.tmp
 
-NON_EXISTING_FILE=CantFindMe
-FILE1=test/samples/inputs/helloworld.txt
-FILE2=test/samples/inputs/helloworld2.txt
-MULTILINE_FILE=test/samples/inputs/multiline.txt
+STRING1="toto"
+STRING2="tata"
 
 teardown() {
-	rm -f $TMP_FILE
+	rm -f $TMP_STRING
 }
 
 @test "Given no parameters Cdiff fails" {
@@ -17,42 +15,29 @@ teardown() {
 	[ $status -ne 0 ]
 }
 
-@test "Given a single file Cdiff fails" {
-	run $CDIFF $FILE1 > /dev/null
+@test "Given a single string Cdiff fails" {
+	run $CDIFF $STRING1 > /dev/null
 	[ $status -ne 0 ]
 }
 
-@test "Given two existing file names Cdiff does not fail" {
-	run $CDIFF $FILE1 $FILE1 > /dev/null
+@test "Given two existing string names Cdiff does not fail" {
+	run $CDIFF $STRING1 $STRING1 > /dev/null
 	[ $status -eq 0 ]
 }
 
-@test "Given more than two files Cdiff fails" {
-	run $CDIFF $FILE1 $FILE1 $FILE1 > /dev/null
+@test "Given more than two strings Cdiff fails" {
+	run $CDIFF $STRING1 $STRING1 $STRING1 > /dev/null
 	[ $status -ne 0 ]
 }
 
-@test "Given a non existing file as first parameter diff fails" {
-	run $CDIFF $NON_EXISTING_FILE $FILE1 > /dev/null
-	[ $status -ne 0 ]
+@test "Given two indentical strings then cdiff outputs the exact content of the string" {
+	run $CDIFF $STRING1 $STRING1
+	[ $status -eq 0 ]
+	[ "$output" = "$STRING1" ]
 }
 
-@test "Given a non existing file as second parameter diff fails" {
-	run $CDIFF $FILE1 $NON_EXISTING_FILE > /dev/null
-	[ $status -ne 0 ]
-}
-
-@test "Given two indentical files then cdiff outputs the exact content of the file" {
-	$CDIFF $FILE1 $FILE1 > $TMP_FILE
-	diff $FILE1 $TMP_FILE
-}
-
-@test "Given two indentical files then cdiff outputs the exact content of the file (Other case)" {
-	$CDIFF $FILE2 $FILE2 > $TMP_FILE
-	diff $FILE2 $TMP_FILE
-}
-
-@test "Given two indentical multi-line files then outputs the content of the file" {
-	$CDIFF $MULTILINE_FILE $MULTILINE_FILE > $TMP_FILE
-	diff $MULTILINE_FILE $TMP_FILE
+@test "Given two indentical strings then cdiff outputs the exact content of the string (Other case)" {
+	run $CDIFF $STRING2 $STRING2
+	[ $status -eq 0 ]
+	[ "$output" = "$STRING2" ]
 }

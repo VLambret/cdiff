@@ -12,7 +12,7 @@ void line_compare(const char *line1, const char *line2, char *result) {
 			*result++ = '[';
 			*result++ = *line2;
 			*result++ = ']';
-			*line2++;
+			line2++;
 		}
 	}
 }

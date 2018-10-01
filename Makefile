@@ -1,4 +1,4 @@
-CFLAGS=-g --coverage
+CFLAGS=-g --coverage -Isrc
 CC=gcc -O0 ${CFLAGS}
 
 COVERAGE_DIR=coverage
@@ -19,9 +19,9 @@ test : build/cdiff build/unit_tests
 	./build/unit_tests
 
 build/unit_tests : src/compare.c test/compare_test.c test/unity_src/unity.c
-	${CC} -DUNITY_OUTPUT_COLOR -Isrc -Itest/unity_src $^ -o $@
+	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
 
-build/cdiff : src/main.c
+build/cdiff : src/main.c src/compare.c
 	${CC} -Wall -Werror $^ -o $@
 
 src/compare.c : src/compare.h
