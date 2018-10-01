@@ -37,6 +37,7 @@ src/modification.c : src/modification.h
 test : build/cdiff build/unit_tests
 	./build/unit_tests
 	bats test/test.sh
+	make valgrind
 
 build/unit_tests :  test/unit_test_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FILES}
 	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
@@ -48,3 +49,6 @@ coverage : test
 	gcovr -r . --exclude="test*"
 	mkdir -p ${COVERAGE_DIR}
 	gcovr -r . --exclude="test*" --html --html-details -o ${COVERAGE_DIR}/index.html
+
+valgrind : build/cdiff
+	valgrind --leak-check=full build/unit_tests > /dev/null
