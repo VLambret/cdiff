@@ -5,27 +5,44 @@ COVERAGE_DIR=coverage
 
 .PHONY : all clean test
 
+SRC_FILES=src/compare.c src/modification.c
+TEST_FILES=test/test_compare.c
+UNITY_FILES=test/unity_src/unity.c
+
 all : build/cdiff
 
 clean : clean_coverage_files
 	rm -f build/* *.info *.gcno *.gcda
 	rm -rf ${COVERAGE_DIR}
+	rm -rf test/unit_test_main.c
 
 clean_coverage_files :
 	rm -f $$(find -name '*.gcno' -o -name '*.gcda')
 
-test : build/cdiff build/unit_tests
-	bats test/*.sh
-	./build/unit_tests
+################################################################################
+# BUILD
+################################################################################
 
-build/unit_tests : src/compare.c src/modification.c test/unit_test_main.c test/test_compare.c test/unity_src/unity.c
-	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
-
-build/cdiff : src/main.c src/compare.c src/modification.c
+build/cdiff : src/main.c ${SRC_FILES}
 	${CC} -Wall -Werror $^ -o $@
 
 src/compare.c : src/compare.h
+
 src/modification.c : src/modification.h
+
+################################################################################
+# TEST
+################################################################################
+
+test : build/cdiff build/unit_tests
+	bats test/test.sh
+	./build/unit_tests
+
+build/unit_tests :  test/unit_test_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FILES}
+	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
+
+test/unit_test_main.c : test/create_main.sh ${TEST_FILES}
+	./$< test > $@
 
 coverage : test
 	gcovr -r . --exclude="test*"
