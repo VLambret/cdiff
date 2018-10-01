@@ -30,4 +30,3 @@ coverage : test
 	gcovr -r . --exclude="test*"
 	mkdir -p ${COVERAGE_DIR}
 	gcovr -r . --exclude="test*" --html --html-details -o ${COVERAGE_DIR}/index.html
-	make clean_coverage_files
