@@ -47,10 +47,10 @@ void modification_to_string(struct modification *m, char * result_init) {
 	struct modification *current = m;
 	while (current) {
 		if (current->type == TEXT) {
-			result = result + snprintf(result, m->content_size + 1, "%s", m->content);
+			result = result + snprintf(result, current->content_size + 1, "%s", current->content);
 		} else {
 			result = result + sprintf(result, "\x1b[32m");
-			result = result + snprintf(result, m->content_size + 1, "%s", m->content);
+			result = result + snprintf(result, current->content_size + 1, "%s", current->content);
 			result = result + sprintf(result, "\x1b[0m");
 		}
 		current = current->next;
