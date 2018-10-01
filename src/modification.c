@@ -14,8 +14,8 @@ struct modification *new_modification(enum modification_type type) {
 }
 
 struct modification extract_modification_steps(const char *line1, const char *line2) {
-	struct modification result = {TEXT, line1, 0, NULL};
-	struct modification *current = &result;
+	struct modification *result = new_modification(UNDEFINED);
+	struct modification *current = result;
 
 	while (*line1 || *line2) {
 		if (*line2 == *line1) {
@@ -24,6 +24,9 @@ struct modification extract_modification_steps(const char *line1, const char *li
 				current->next = tmp;
 				current = tmp;
 				current->content = line1;
+				if (result->type == UNDEFINED) {
+					result = current;
+				}
 			}
 			current->content_size++;
 			line2++;
@@ -34,25 +37,35 @@ struct modification extract_modification_steps(const char *line1, const char *li
 				current->next = tmp;
 				current = tmp;
 				current->content = line2;
+				if (result->type == UNDEFINED) {
+					result = current;
+				}
 			}
 			current->content_size++;
 			line2++;
 		}
 	}
-	return result;
+
+	if (result->type == UNDEFINED) {
+		result->type = TEXT;
+	}
+	return *result;
 }
 
-void modification_to_string(struct modification *m, char * result_init) {
-	char *result = result_init;
+void modification_to_string(struct modification *m, char * result) {
+	size_t index = 0;
 	struct modification *current = m;
 	while (current) {
 		if (current->type == TEXT) {
-			result = result + snprintf(result, current->content_size + 1, "%s", current->content);
+			memcpy(&result[index], current->content, current->content_size);
+			index = index + current->content_size;
 		} else {
-			result = result + sprintf(result, "\x1b[32m");
-			result = result + snprintf(result, current->content_size + 1, "%s", current->content);
-			result = result + sprintf(result, "\x1b[0m");
+			memcpy(&result[index],  "\x1b[32m", 5);
+			memcpy(&result[index + 5], current->content, current->content_size);
+			memcpy(&result[index + 5 + current->content_size],  "\x1b[0m", 4);
+			index = index + 9 + current->content_size;
 		}
 		current = current->next;
 	}
+	result[index] = '\0';
 }

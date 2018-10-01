@@ -35,8 +35,8 @@ src/modification.c : src/modification.h
 ################################################################################
 
 test : build/cdiff build/unit_tests
-	bats test/test.sh
 	./build/unit_tests
+	bats test/test.sh
 
 build/unit_tests :  test/unit_test_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FILES}
 	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@

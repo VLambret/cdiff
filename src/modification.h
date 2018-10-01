@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-enum modification_type {TEXT, ADDING};
+enum modification_type {UNDEFINED, TEXT, ADDING};
 
 struct modification {
 	enum modification_type type;
