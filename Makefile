@@ -18,7 +18,7 @@ test : build/cdiff build/unit_tests
 	bats test/*.sh
 	./build/unit_tests
 
-build/unit_tests : src/compare.c src/modification.c test/compare_test.c test/unity_src/unity.c
+build/unit_tests : src/compare.c src/modification.c test/unit_test_main.c test/test_compare.c test/unity_src/unity.c
 	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
 
 build/cdiff : src/main.c src/compare.c src/modification.c

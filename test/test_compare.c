@@ -41,10 +41,3 @@ void test_AddedSingleCharIsEmphazedWithBrackets() {
 	};
 	loop_over_test_cases(givens);
 }
-
-int main() {
-	UnityBegin("Compare tests");
-	RUN_TEST(test_ThereIsNoDifferenceBetweenTwoIdenticalLines);
-	RUN_TEST(test_AddedSingleCharIsEmphazedWithBrackets);
-	return UnityEnd();
-}
