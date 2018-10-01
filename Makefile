@@ -18,13 +18,14 @@ test : build/cdiff build/unit_tests
 	bats test/*.sh
 	./build/unit_tests
 
-build/unit_tests : src/compare.c test/compare_test.c test/unity_src/unity.c
+build/unit_tests : src/compare.c src/modification.c test/compare_test.c test/unity_src/unity.c
 	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
 
-build/cdiff : src/main.c src/compare.c
+build/cdiff : src/main.c src/compare.c src/modification.c
 	${CC} -Wall -Werror $^ -o $@
 
 src/compare.c : src/compare.h
+src/modification.c : src/modification.h
 
 coverage : test
 	gcovr -r . --exclude="test*"
