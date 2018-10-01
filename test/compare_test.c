@@ -1,6 +1,9 @@
 #include "unity_src/unity.h"
 #include <compare.h>
 
+#define GREEN(string) "\x1b[32m" string "\x1b[0m"
+#define RED(string) "\x1b[31m" string "\x1b[0m"
+
 #define END_OF_LINE_PATTERNS {.reference = NULL, .compared = NULL, .expected = NULL}
 
 struct line_patterns {
@@ -30,10 +33,10 @@ void test_ThereIsNoDifferenceBetweenTwoIdenticalLines() {
 
 void test_AddedSingleCharIsEmphazedWithBrackets() {
 	struct line_patterns givens[] = {
-		{.reference = "", .compared = "a", .expected = "[a]"},
-		{.reference = "toto", .compared = "atoto", .expected = "[a]toto"},
-		{.reference = "toto", .compared = "totob", .expected = "toto[b]"},
-		{.reference = "toto", .compared = "tcoto", .expected = "t[c]oto"},
+		{.reference = "", .compared = "a", .expected = GREEN("a")},
+		{.reference = "toto", .compared = "atoto", .expected = GREEN("a")"toto"},
+		{.reference = "toto", .compared = "totob", .expected = "toto"GREEN("b")},
+		{.reference = "toto", .compared = "tcoto", .expected = "t"GREEN("c")"oto"},
 		END_OF_LINE_PATTERNS
 	};
 	loop_over_test_cases(givens);
