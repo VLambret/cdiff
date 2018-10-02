@@ -5,8 +5,8 @@ COVERAGE_DIR=coverage
 
 .PHONY : all clean test
 
-SRC_FILES=src/compare.c src/modification.c
-TEST_FILES=test/test_compare.c test/test_modification.c
+SRC_FILES=$(filter-out src/main.c, $(wildcard src/*.c))
+TEST_FILES=$(wildcard test/test_*.c)
 UNITY_FILES=test/unity_src/unity.c
 
 all : build/cdiff
