@@ -23,7 +23,6 @@ void modification_destroy(struct modification *m) {
 struct modification *extract_modification_steps(const char *line1, const char *line2) {
 	struct modification *head = NULL;
 	struct modification *current = NULL;
-	enum modification_type previous_type = UNDEFINED;
 
 	while (*line1 || *line2) {
 		enum modification_type current_type;
@@ -35,7 +34,7 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 		if (!current) {
 			head = current = new_modification(current_type);
 			current->content = line2;
-		} else if (current_type != previous_type) {
+		} else if (current_type != current->type) {
 			current->next = new_modification(current_type);
 			current = current->next;
 			current->content = line2;
@@ -45,7 +44,6 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 		if (current_type == TEXT) {
 			line1++;
 		}
-		previous_type = current_type;
 		continue;
 	}
 
