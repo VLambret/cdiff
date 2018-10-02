@@ -11,6 +11,8 @@ struct modification {
 	struct modification *next;
 };
 
-struct modification extract_modification_steps(const char *line1, const char *line2);
+struct modification *extract_modification_steps(const char *line1, const char *line2);
 
 void modification_to_string(struct modification *m, char * result_init);
+
+void modification_destroy(struct modification *m);

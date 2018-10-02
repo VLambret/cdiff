@@ -13,43 +13,46 @@ struct modification *new_modification(enum modification_type type) {
 	return m;
 }
 
-struct modification extract_modification_steps(const char *line1, const char *line2) {
-	struct modification *result = new_modification(UNDEFINED);
-	struct modification *current = result;
+void modification_destroy(struct modification *m) {
+	if (m) {
+		modification_destroy(m->next);
+		free(m);
+	}
+}
+
+struct modification *extract_modification_steps(const char *line1, const char *line2) {
+	struct modification *head = NULL;
+	struct modification *current = NULL;
+	enum modification_type previous_type = UNDEFINED;
 
 	while (*line1 || *line2) {
+		enum modification_type current_type;
 		if (*line2 == *line1) {
-			if (!current || current->type != TEXT) {
-				struct modification *tmp = new_modification(TEXT);
-				current->next = tmp;
-				current = tmp;
-				current->content = line1;
-				if (result->type == UNDEFINED) {
-					result = current;
-				}
-			}
-			current->content_size++;
-			line2++;
-			line1++;
+			current_type = TEXT;
 		} else {
-			if (!current || current->type != ADDING) {
-				struct modification *tmp = new_modification(ADDING);
-				current->next = tmp;
-				current = tmp;
-				current->content = line2;
-				if (result->type == UNDEFINED) {
-					result = current;
-				}
-			}
-			current->content_size++;
-			line2++;
+			current_type = ADDING;
 		}
+		if (!current) {
+			head = current = new_modification(current_type);
+			current->content = line2;
+		} else if (current_type != previous_type) {
+			current->next = new_modification(current_type);
+			current = current->next;
+			current->content = line2;
+		}
+		current->content_size++;
+		line2++;
+		if (current_type == TEXT) {
+			line1++;
+		}
+		previous_type = current_type;
+		continue;
 	}
 
-	if (result->type == UNDEFINED) {
-		result->type = TEXT;
+	if (!head) {
+		head = new_modification(UNDEFINED);
 	}
-	return *result;
+	return head;
 }
 
 void modification_to_string(struct modification *m, char * result) {
@@ -59,7 +62,7 @@ void modification_to_string(struct modification *m, char * result) {
 		if (current->type == TEXT) {
 			memcpy(&result[index], current->content, current->content_size);
 			index = index + current->content_size;
-		} else {
+		} else if (current->type == ADDING) {
 			memcpy(&result[index],  "\x1b[32m", 5);
 			memcpy(&result[index + 5], current->content, current->content_size);
 			memcpy(&result[index + 5 + current->content_size],  "\x1b[0m", 4);
