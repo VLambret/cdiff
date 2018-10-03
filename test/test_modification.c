@@ -76,6 +76,12 @@ void test_modification_extraction_with_added_text_at_the_end() {
 	modification_destroy(m);
 }
 
+void test_modification_extraction_with_removing_single_char() {
+	struct modification *m = extract_modification_steps("a", "");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, REMOVAL, "a", true);
+	modification_destroy(m);
+}
+
 // String conversion
 
 void test_modification_string_modification_with_single_text() {
@@ -90,6 +96,13 @@ void test_modification_string_modification_with_only_added_text() {
 	char result[1024];
 	modification_to_string(&text_added, result);
 	TEST_ASSERT_EQUAL_STRING(GREEN("a"), result);
+}
+
+void test_modification_string_modification_with_only_removed_text() {
+	struct modification text_removed = {REMOVAL, "a", 1, NULL};
+	char result[1024];
+	modification_to_string(&text_removed, result);
+	TEST_ASSERT_EQUAL_STRING(RED("a"), result);
 }
 
 void test_modification_string_modification_with_added_text_at_the_begining() {

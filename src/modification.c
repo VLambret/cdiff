@@ -24,11 +24,14 @@ void modification_destroy(struct modification *m) {
 static enum modification_type get_shortest_distance_type(struct levenshtein_matrix *m, int y, int x) {
 	int identical_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)];
 	int added_char_distance = m->cost_matrix[y * (m->width + 1) + (x - 1)];
+	int removed_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + x];
 
-	if (identical_char_distance <= added_char_distance) {
+	if (identical_char_distance <= added_char_distance && identical_char_distance <= removed_char_distance) {
 		return TEXT;
-	} else {
+	} else if (added_char_distance <= removed_char_distance) {
 		return ADDING;
+	} else {
+		return REMOVAL;
 	}
 }
 
@@ -46,7 +49,11 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 			head = new_modification(type);
 		} else if (head->type != type) {
 			struct modification *new_head = new_modification(type);
-			head->content = &line2[x];
+			if (head->type == REMOVAL) {
+				head->content = &line1[x];
+			} else {
+				head->content = &line2[x];
+			}
 			new_head->next = head;
 			head = new_head;
 		}
@@ -87,6 +94,13 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 		return current;
 	}
 
+	if (line2[0] == '\0') {
+		current = new_modification(REMOVAL);
+		current->content = line1;
+		current->content_size = strlen(line1);
+		return current;
+	}
+
 	return extract_modification_steps_non_trivial(line1, line2);
 }
 
@@ -99,6 +113,11 @@ void modification_to_string(struct modification *m, char * result) {
 			index = index + current->content_size;
 		} else if (current->type == ADDING) {
 			memcpy(&result[index],  "\x1b[32m", 5);
+			memcpy(&result[index + 5], current->content, current->content_size);
+			memcpy(&result[index + 5 + current->content_size],  "\x1b[0m", 4);
+			index = index + 9 + current->content_size;
+		} else if (current->type == REMOVAL) {
+			memcpy(&result[index],  "\x1b[31m", 5);
 			memcpy(&result[index + 5], current->content, current->content_size);
 			memcpy(&result[index + 5 + current->content_size],  "\x1b[0m", 4);
 			index = index + 9 + current->content_size;
