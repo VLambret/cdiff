@@ -1,97 +1,80 @@
 #include "unity_src/unity.h"
 #include <modification.h>
+#include <string.h>
+#include <stdbool.h>
 
 #define GREEN(string) "\x1b[32m" string "\x1b[0m"
 #define RED(string) "\x1b[31m" string "\x1b[0m"
 
+// Helpers
+
+#define NEXT ((void *) !NULL)
+
+void TEST_ASSERT_EQUAL_MODIFICATION(struct modification *m, enum modification_type type, char *content, bool last) {
+	int content_size = strlen(content);
+	TEST_ASSERT_EQUAL_INT(type, m->type);
+	TEST_ASSERT_EQUAL_INT(content_size, m->content_size);
+	TEST_ASSERT_EQUAL_STRING_LEN(content, m->content, content_size);
+	if (!last) {
+		TEST_ASSERT_NOT_NULL(m->next);
+	} else {
+		TEST_ASSERT_NULL(m->next);
+	}
+}
+
 // Extraction
 
-void test_modification_extraction_with_identical_text() {
-	struct modification *m = extract_modification_steps("abcd", "abcd");
-	TEST_ASSERT_EQUAL_INT(TEXT, m->type);
-	TEST_ASSERT_EQUAL_INT(4, m->content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("abcd", m->content, 4);
-	TEST_ASSERT_NULL(m->next);
+void test_modification_extraction_with_two_empty_strings() {
+	struct modification *m = extract_modification_steps("", "");
+	TEST_ASSERT_NULL(m);
+}
 
+void test_modification_extraction_with_identical_text() {
+	struct modification *m = extract_modification_steps("a", "a");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "a", true);
+	modification_destroy(m);
+
+	m = extract_modification_steps("abcd", "abcd");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "abcd", true);
 	modification_destroy(m);
 }
 
-void test_modification_extraction_with_only_added_text() {
-	struct modification *m = extract_modification_steps("", "abcd");
-	TEST_ASSERT_EQUAL_INT(ADDING, m->type);
-	TEST_ASSERT_EQUAL_INT(4, m->content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("abcd", m->content, 4);
-	TEST_ASSERT_NULL(m->next);
+void test_modification_extraction_added_text_on_empty_string() {
+	struct modification *m = extract_modification_steps("", "a");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, ADDING, "a", true);
+	modification_destroy(m);
 
+	m = extract_modification_steps("", "abcd");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, ADDING, "abcd", true);
 	modification_destroy(m);
 }
 
 void test_modification_extraction_with_added_text_at_begining() {
-	struct modification *m = extract_modification_steps("bcde", "abcde");
-	struct modification suffix;
+	struct modification *m = extract_modification_steps("b", "ab");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, ADDING, "a", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "b", true);
+	modification_destroy(m);
 
-	TEST_ASSERT_EQUAL_INT(ADDING, m->type);
-	TEST_ASSERT_EQUAL_INT(1, m->content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("a", m->content, 1);
-	TEST_ASSERT_NOT_NULL(m->next);
-
-	suffix = *m->next;
-
-	TEST_ASSERT_EQUAL_INT(TEXT, suffix.type);
-	TEST_ASSERT_EQUAL_INT(4, suffix.content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("bcde", suffix.content, 4);
-	TEST_ASSERT_NULL(suffix.next);
-
+	m = extract_modification_steps("bcde", "abcde");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, ADDING, "a", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "bcde", true);
 	modification_destroy(m);
 }
 
 void test_modification_extraction_with_added_text_in_the_middle() {
-	struct modification *m = extract_modification_steps("abcd", "abcde");
-	struct modification suffix;
-	struct modification prefix;
-
-	TEST_ASSERT_EQUAL_INT(TEXT, m->type);
-	TEST_ASSERT_EQUAL_INT(4, m->content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("abcd", m->content, 4);
-	TEST_ASSERT_NOT_NULL(m->next);
-
-	suffix = *m->next;
-
-	TEST_ASSERT_EQUAL_INT(ADDING, suffix.type);
-	TEST_ASSERT_EQUAL_INT(1, suffix.content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("e", suffix.content, 1);
-	TEST_ASSERT_NULL(suffix.next);
-
+	struct modification *m = extract_modification_steps("abde", "abcde");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "ab", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, ADDING, "c", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next->next, TEXT, "de", true);
 	modification_destroy(m);
 }
 
 void test_modification_extraction_with_added_text_at_the_end() {
-	struct modification *m = extract_modification_steps("abde", "abcde");
-	struct modification added;
-	struct modification suffix;
-
-	TEST_ASSERT_EQUAL_INT(TEXT, m->type);
-	TEST_ASSERT_EQUAL_INT(2, m->content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("ab", m->content, 2);
-	TEST_ASSERT_NOT_NULL(m->next);
-
-	added = *m->next;
-
-	TEST_ASSERT_EQUAL_INT(ADDING, added.type);
-	TEST_ASSERT_EQUAL_INT(1, added.content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("c", added.content, 1);
-	TEST_ASSERT_NOT_NULL(added.next);
-
-	suffix = *added.next;
-
-	TEST_ASSERT_EQUAL_INT(TEXT, suffix.type);
-	TEST_ASSERT_EQUAL_INT(2, suffix.content_size);
-	TEST_ASSERT_EQUAL_STRING_LEN("de", suffix.content, 2);
-	TEST_ASSERT_NULL(suffix.next);
-
+	struct modification *m = extract_modification_steps("abcd", "abcde");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "abcd", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, ADDING, "e", true);
 	modification_destroy(m);
 }
-
 
 // String conversion
 
