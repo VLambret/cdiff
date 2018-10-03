@@ -49,7 +49,7 @@ void test_modification_extraction_added_text_on_empty_string() {
 	modification_destroy(m);
 }
 
-void test_modification_extraction_with_added_text_at_begining() {
+void test_modification_extraction_with_added_text_at_beginning() {
 	struct modification *m = extract_modification_steps("b", "ab");
 	TEST_ASSERT_EQUAL_MODIFICATION(m, ADDING, "a", false);
 	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "b", true);
@@ -105,7 +105,7 @@ void test_modification_string_modification_with_only_removed_text() {
 	TEST_ASSERT_EQUAL_STRING(RED("a"), result);
 }
 
-void test_modification_string_modification_with_added_text_at_the_begining() {
+void test_modification_string_modification_with_added_text_at_the_beginning() {
 	struct modification suffix = {TEXT, "bcde", 4, NULL};
 	struct modification text_added = {ADDING, "a", 1, &suffix};
 	char result[1024];
