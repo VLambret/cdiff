@@ -32,9 +32,9 @@ static enum modification_type get_shortest_distance_type(struct levenshtein_matr
 	}
 }
 
-struct modification *extract_modification_steps(const char *line1, const char *line2) {
-	struct modification *current = NULL;
+static struct modification *extract_modification_steps_non_trivial(const char *line1, const char *line2) {
 	struct levenshtein_matrix *m = new_levenshtein_matrix(line1, line2);
+	struct modification *head = NULL;
 
 	int y = m->height;
 	int x = m->width;
@@ -42,35 +42,52 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 	while (y > 0 && x > 0) {
 		enum modification_type type = get_shortest_distance_type(m, y, x);
 
-		if (!current) {
-			current = new_modification(type);
-		} else if (current->type != type) {
-			struct modification *previous = new_modification(type);
-			current->content = &line2[x];
-			previous->next = current;
-			current = previous;
+		if (!head) {
+			head = new_modification(type);
+		} else if (head->type != type) {
+			struct modification *new_head = new_modification(type);
+			head->content = &line2[x];
+			new_head->next = head;
+			head = new_head;
 		}
 
-		current->content_size++;
+		head->content_size++;
 		if (type == TEXT) {
 			if (y > 0) y--;
 		}
 		if (x > 0) x--;
 	}
 
-	if (current && current->type == TEXT) {
-		current->content = line1;
+	if (head && head->type == TEXT) {
+		head->content = line1;
 	}
 	if (x > 0) {
-		struct modification *previous = new_modification(ADDING);
-		previous->content = line2;
-		previous->content_size = x;
-		previous->next = current;
-		current = previous;
+		struct modification *new_head = new_modification(ADDING);
+		new_head->content = line2;
+		new_head->content_size = x;
+		new_head->next = head;
+		head = new_head;
 	}
 
 	destroy_levenshtein_matrix(m);	
-	return current;
+	return head;
+}
+
+struct modification *extract_modification_steps(const char *line1, const char *line2) {
+	struct modification *current = NULL;
+
+	if (line1[0] == '\0' && line2[0] == '\0') {
+		return NULL;
+	}
+
+	if (line1[0] == '\0') {
+		current = new_modification(ADDING);
+		current->content = line2;
+		current->content_size = strlen(line2);
+		return current;
+	}
+
+	return extract_modification_steps_non_trivial(line1, line2);
 }
 
 void modification_to_string(struct modification *m, char * result) {
