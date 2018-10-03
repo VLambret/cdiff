@@ -21,6 +21,17 @@ void modification_destroy(struct modification *m) {
 	}
 }
 
+static enum modification_type get_shortest_distance_type(struct levenshtein_matrix *m, int y, int x) {
+	int identical_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)];
+	int added_char_distance = m->cost_matrix[y * (m->width + 1) + (x - 1)];
+
+	if (identical_char_distance <= added_char_distance) {
+		return TEXT;
+	} else {
+		return ADDING;
+	}
+}
+
 struct modification *extract_modification_steps(const char *line1, const char *line2) {
 	struct modification *current = NULL;
 	struct levenshtein_matrix *m = new_levenshtein_matrix(line1, line2);
@@ -29,10 +40,9 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 	int x = m->width;
 
 	while (y > 0 && x > 0) {
-		int identical_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)];
-		int added_char_distance = m->cost_matrix[y * (m->width + 1) + (x - 1)];
+		enum modification_type type = get_shortest_distance_type(m, y, x);
 
-		if (identical_char_distance <= added_char_distance) {
+		if (type == TEXT) {
 			if (!current) {
 				current = new_modification(TEXT);
 			} else if (current->type != TEXT) {
