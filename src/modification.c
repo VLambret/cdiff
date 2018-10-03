@@ -42,30 +42,20 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 	while (y > 0 && x > 0) {
 		enum modification_type type = get_shortest_distance_type(m, y, x);
 
-		if (type == TEXT) {
-			if (!current) {
-				current = new_modification(TEXT);
-			} else if (current->type != TEXT) {
-				struct modification *previous = new_modification(TEXT);
-				current->content = &line2[x];
-				previous->next = current;
-				current = previous;
-			}
-			current->content_size++;
-			if (y > 0) y--;
-			if (x > 0) x--;
-		} else {
-			if (!current) {
-				current = new_modification(ADDING);
-			} else if (current->type != ADDING) {
-				struct modification *previous = new_modification(ADDING);
-				current->content = &line2[x];
-				previous->next = current;
-				current = previous;
-			}
-			current->content_size++;
-			if (x > 0) x--;
+		if (!current) {
+			current = new_modification(type);
+		} else if (current->type != type) {
+			struct modification *previous = new_modification(type);
+			current->content = &line2[x];
+			previous->next = current;
+			current = previous;
 		}
+
+		current->content_size++;
+		if (type == TEXT) {
+			if (y > 0) y--;
+		}
+		if (x > 0) x--;
 	}
 
 	if (current && current->type == TEXT) {
