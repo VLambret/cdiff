@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <modification.h>
+#include <levenshtein.h>
 
 struct modification *new_modification(enum modification_type type) {
 	struct modification *m = malloc(sizeof(struct modification));
@@ -21,36 +22,55 @@ void modification_destroy(struct modification *m) {
 }
 
 struct modification *extract_modification_steps(const char *line1, const char *line2) {
-	struct modification *head = NULL;
 	struct modification *current = NULL;
+	struct levenshtein_matrix *m = new_levenshtein_matrix(line1, line2);
 
-	while (*line1 || *line2) {
-		enum modification_type current_type;
-		if (*line2 == *line1) {
-			current_type = TEXT;
+	int y = m->height;
+	int x = m->width;
+
+	while (y > 0 && x > 0) {
+		int identical_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)];
+		int added_char_distance = m->cost_matrix[y * (m->width + 1) + (x - 1)];
+
+		if (identical_char_distance <= added_char_distance) {
+			if (!current) {
+				current = new_modification(TEXT);
+			} else if (current->type != TEXT) {
+				struct modification *previous = new_modification(TEXT);
+				current->content = &line2[x];
+				previous->next = current;
+				current = previous;
+			}
+			current->content_size++;
+			if (y > 0) y--;
+			if (x > 0) x--;
 		} else {
-			current_type = ADDING;
+			if (!current) {
+				current = new_modification(ADDING);
+			} else if (current->type != ADDING) {
+				struct modification *previous = new_modification(ADDING);
+				current->content = &line2[x];
+				previous->next = current;
+				current = previous;
+			}
+			current->content_size++;
+			if (x > 0) x--;
 		}
-		if (!current) {
-			head = current = new_modification(current_type);
-			current->content = line2;
-		} else if (current_type != current->type) {
-			current->next = new_modification(current_type);
-			current = current->next;
-			current->content = line2;
-		}
-		current->content_size++;
-		line2++;
-		if (current_type == TEXT) {
-			line1++;
-		}
-		continue;
 	}
 
-	if (!head) {
-		head = new_modification(UNDEFINED);
+	if (current && current->type == TEXT) {
+		current->content = line1;
 	}
-	return head;
+	if (x > 0) {
+		struct modification *previous = new_modification(ADDING);
+		previous->content = line2;
+		previous->content_size = x;
+		previous->next = current;
+		current = previous;
+	}
+
+	destroy_levenshtein_matrix(m);	
+	return current;
 }
 
 void modification_to_string(struct modification *m, char * result) {
