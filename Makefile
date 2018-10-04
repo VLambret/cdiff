@@ -52,3 +52,6 @@ coverage : test
 
 valgrind : build/cdiff
 	valgrind --leak-check=full build/unit_tests > /dev/null
+
+gdb : build/cdiff
+	gdb $<
