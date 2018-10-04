@@ -21,22 +21,45 @@ void loop_over_test_cases(struct line_patterns *p) {
 	}
 }
 
-void test_ThereIsNoDifferenceBetweenTwoIdenticalLines() {
+void test_GivenIdenticalLines_Then_OutputIsACopyOfReferenceLine() {
 	struct line_patterns givens[] = {
 		{.reference = "", .compared = "", .expected = ""},
-		{.reference = "toto", .compared = "toto", .expected = "toto"},
-		{.reference = "tata", .compared = "tata", .expected = "tata"},
+		{.reference = "a", .compared = "a", .expected = "a"},
+		{.reference = "ab", .compared = "ab", .expected = "ab"},
+		{.reference = "abcd", .compared = "abcd", .expected = "abcd"},
+		{.reference = "vim>emacs", .compared = "vim>emacs", .expected = "vim>emacs"},
 		END_OF_LINE_PATTERNS
 	};
 	loop_over_test_cases(givens);
 }
 
-void test_AddedSingleCharIsEmphazedWithBrackets() {
+void test_GivenComparedLineWithMoreChars_The_AdditionalCharactersAreEmphazedWithGreen() {
 	struct line_patterns givens[] = {
 		{.reference = "", .compared = "a", .expected = GREEN("a")},
-		{.reference = "toto", .compared = "atoto", .expected = GREEN("a")"toto"},
-		{.reference = "toto", .compared = "totob", .expected = "toto"GREEN("b")},
-		{.reference = "toto", .compared = "tcoto", .expected = "t"GREEN("c")"oto"},
+		{.reference = "a", .compared = "ab", .expected = "a"GREEN("b")},
+		{.reference = "b", .compared = "ab", .expected = GREEN("a")"b"},
+		{.reference = "abc", .compared = "abcde", .expected = "abc"GREEN("de")},
+		{.reference = "ae", .compared = "abcde", .expected = "a"GREEN("bcd")"e"},
+		{.reference = "cde", .compared = "abcde", .expected =GREEN("ab") "cde"},
+		{.reference = "movie is really bad !",
+		 .compared  = "lantern movie is really bad !",
+		 .expected  = ""GREEN("lantern ")"movie is really bad !"},
+		END_OF_LINE_PATTERNS
+	};
+	loop_over_test_cases(givens);
+}
+
+void test_GivenComparedLineWithMissingChars_The_RemovedCharactersAreEmphazedWithRed() {
+	struct line_patterns givens[] = {
+		{.reference = "a", .compared = "", .expected = RED("a")},
+		{.reference = "ab", .compared = "a", .expected = "a"RED("b")},
+		{.reference = "ab", .compared = "b", .expected = RED("a")"b"},
+		{.reference = "abcde", .compared = "abc", .expected = "abc"RED("de")},
+		{.reference = "abcde", .compared = "ae", .expected = "a"RED("bcd")"e"},
+		{.reference = "abcde", .compared = "cde", .expected =RED("ab") "cde"},
+		{.reference = "no hood movie at the moment...",
+		 .compared  = "no movie at the moment...",
+		 .expected  = "no "RED("hood ")"movie at the moment..."},
 		END_OF_LINE_PATTERNS
 	};
 	loop_over_test_cases(givens);
