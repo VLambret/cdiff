@@ -89,18 +89,18 @@ void test_modification_extraction_with_removing_from_the_beginning() {
 	modification_destroy(m);
 }
 
-void ignore_modification_extraction_with_removing_from_the_middle() {
+void test_modification_extraction_with_removing_from_the_middle() {
 	struct modification *m = extract_modification_steps("abcde", "abde");
 	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "ab", false);
-	TEST_ASSERT_EQUAL_MODIFICATION(m, REMOVAL, "c", false);
-	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "de", true);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, REMOVAL, "c", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next->next, TEXT, "de", true);
 	modification_destroy(m);
 }
 
-void ignore_modification_extraction_with_removing_from_the_end() {
+void test_modification_extraction_with_removing_from_the_end() {
 	struct modification *m = extract_modification_steps("abcde", "abcd");
 	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "abcd", false);
-	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "e", true);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, REMOVAL, "e", true);
 	modification_destroy(m);
 }
 

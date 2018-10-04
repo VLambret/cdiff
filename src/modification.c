@@ -59,10 +59,12 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		}
 
 		head->content_size++;
-		if (type == TEXT) {
+		if (type == TEXT || type == REMOVAL) {
 			if (y > 0) y--;
 		}
-		if (x > 0) x--;
+		if (type == TEXT || type == ADDING) {
+			if (x > 0) x--;
+		}
 	}
 
 	if (head && head->type == TEXT) {
