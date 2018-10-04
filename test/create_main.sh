@@ -8,28 +8,56 @@ fi
 
 TEST_DIR=$1
 
-list_unit_tests() {
+head() {
+	echo '#include "unity_src/unity.h"'
+	echo
+}
+
+create_prototypes() {
+	TEST_DIR=$1
+
 	for TEST_SUITE in $TEST_DIR/test_*.c
 	do
-		grep -e '^void test_.*(' $TEST_SUITE | sed -e 's/^void \(test_.*\)(.*/\1/'
+		UNIT_TESTS=$(grep -e '^void test_.*(' $TEST_SUITE | sed -e 's/^void \(test_.*\)(.*/\1/')
+		for TEST in $UNIT_TESTS
+		do
+			echo "	void $TEST();"
+		done
+		echo
 	done
 }
 
-UNIT_TESTS=$(list_unit_tests)
+main() {
+	echo 'int main() {'
+	echo
+}
 
-echo '#include "unity_src/unity.h"'
-echo
-for TEST in $UNIT_TESTS
-do
-	echo "void $TEST();"
-done
-echo
+create_test_suite() {
+	TEST_SUITE=$1
+	echo "	UnityBegin(\"$(basename $TEST_SUITE)\");"
+	UNIT_TESTS=$(grep -e '^void test_.*(' $TEST_SUITE | sed -e 's/^void \(test_.*\)(.*/\1/')
+	for TEST in $UNIT_TESTS
+	do
+		echo "	RUN_TEST($TEST);"
+	done
+	echo
+}
 
-echo 'int main() {'
-echo '	UnityBegin("cdiff tests");'
-for TEST in $UNIT_TESTS
-do
-	echo "	RUN_TEST($TEST);"
-done
-echo '	return UnityEnd();'
-echo '}'
+create_unit_tests() {
+	TEST_DIR=$1
+	for TEST_SUITE in $TEST_DIR/test_*.c
+	do
+		create_test_suite $TEST_SUITE
+	done
+}
+
+end() {
+	echo '	return UnityEnd();'
+	echo '}'
+}
+
+head
+create_prototypes $TEST_DIR
+main
+create_unit_tests $TEST_DIR
+end
