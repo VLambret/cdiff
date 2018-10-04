@@ -82,6 +82,28 @@ void test_modification_extraction_with_removing_single_char() {
 	modification_destroy(m);
 }
 
+void test_modification_extraction_with_removing_from_the_beginning() {
+	struct modification *m = extract_modification_steps("abcde", "bcde");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, REMOVAL, "a", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "bcde", true);
+	modification_destroy(m);
+}
+
+void ignore_modification_extraction_with_removing_from_the_middle() {
+	struct modification *m = extract_modification_steps("abcde", "abde");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "ab", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m, REMOVAL, "c", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "de", true);
+	modification_destroy(m);
+}
+
+void ignore_modification_extraction_with_removing_from_the_end() {
+	struct modification *m = extract_modification_steps("abcde", "abcd");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, TEXT, "abcd", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, TEXT, "e", true);
+	modification_destroy(m);
+}
+
 // String conversion
 
 void test_modification_string_modification_with_single_text() {

@@ -66,12 +66,19 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 	}
 
 	if (head && head->type == TEXT) {
-		head->content = line1;
+		head->content = &line1[y];
 	}
 	if (x > 0) {
 		struct modification *new_head = new_modification(ADDING);
 		new_head->content = line2;
 		new_head->content_size = x;
+		new_head->next = head;
+		head = new_head;
+	}
+	if (y > 0) {
+		struct modification *new_head = new_modification(REMOVAL);
+		new_head->content = line1;
+		new_head->content_size = y;
 		new_head->next = head;
 		head = new_head;
 	}
