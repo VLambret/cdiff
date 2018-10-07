@@ -22,6 +22,7 @@ void modification_destroy(struct modification *m) {
 }
 
 void modification_increase(struct modification *m) {
+	m->content--;
 	m->content_size++;
 }
 
@@ -56,19 +57,14 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 	while (y > 0 && x > 0) {
 		enum modification_type type = get_shortest_distance_type(m, y, x);
 
-		if (!head) {
-			head = new_modification(type, NULL, NULL);
-		} else if (head->type != type) {
+		if (!head || head->type != type) {
 			const char *content;
-			struct modification *new_head = new_modification(type, NULL, head);
-			if (!head->content) {
-				if (head->type == REMOVAL) {
-					content = &line1[y];
-				} else {
-					content = &line2[x];
-				}
+			if (type == REMOVAL) {
+				content = &line1[y-1];
+			} else {
+				content = &line2[x-1];
 			}
-			head->content = content;
+			struct modification *new_head = new_modification(type, content, head);
 			head = new_head;
 		} else {
 			modification_increase(head);
@@ -93,7 +89,6 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 	if (y > 0) {
 		struct modification *new_head = new_modification(REMOVAL, line1, head);
 		new_head->content_size = y;
-		head->content = line2;
 		head = new_head;
 	}
 
