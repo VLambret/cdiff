@@ -61,7 +61,7 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		} else if (head->type != type) {
 			struct modification *new_head = new_modification(type);
 			if (head->type == REMOVAL) {
-				head->content = &line1[x];
+				head->content = &line1[y];
 			} else {
 				head->content = &line2[x];
 			}
@@ -70,6 +70,7 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		} else {
 			modification_increase(head);
 		}
+
 		if (type == TEXT || type == REMOVAL) {
 			if (y > 0) y--;
 		}
