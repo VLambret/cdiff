@@ -100,3 +100,10 @@ void test_modification_extraction_with_removing_from_the_end() {
 	TEST_ASSERT_EQUAL_MODIFICATION(m->next, REMOVAL, "e", true);
 	modification_destroy(m);
 }
+
+void test_modification_extraction_replacing_a_single_char() {
+	struct modification *m = extract_modification_steps("a", "b");
+	TEST_ASSERT_EQUAL_MODIFICATION(m, REMOVAL, "a", false);
+	TEST_ASSERT_EQUAL_MODIFICATION(m->next, ADDING, "b", true);
+	modification_destroy(m);
+}

@@ -22,12 +22,19 @@ void modification_destroy(struct modification *m) {
 }
 
 static enum modification_type get_shortest_distance_type(struct levenshtein_matrix *m, int y, int x) {
+	int current_distance = m->cost_matrix[y * (m->width + 1) + x];
 	int identical_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)];
 	int added_char_distance = m->cost_matrix[y * (m->width + 1) + (x - 1)];
 	int removed_char_distance = m->cost_matrix[(y - 1) * (m->width + 1) + x];
 
 	if (identical_char_distance <= added_char_distance && identical_char_distance <= removed_char_distance) {
-		return TEXT;
+		if (identical_char_distance == current_distance) {
+			return TEXT;
+		} else {
+			// The previous char is replaced, we start start by ADDING to get a REMOVAL
+			// ADDING modification
+			return ADDING;
+		}
 	} else if (added_char_distance <= removed_char_distance) {
 		return ADDING;
 	} else {
@@ -82,6 +89,7 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		new_head->content = line1;
 		new_head->content_size = y;
 		new_head->next = head;
+		head->content = line2;
 		head = new_head;
 	}
 

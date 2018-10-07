@@ -64,3 +64,11 @@ void test_GivenComparedLineWithMissingChars_The_RemovedCharactersAreEmphazedWith
 	};
 	loop_over_test_cases(givens);
 }
+
+void test_SubstitutionAreMarkedAsTheResultOfARemovalAndAnAdding() {
+	struct line_patterns givens[] = {
+		{.reference = "a", .compared = "b", .expected = RED("a")GREEN("b")},
+		END_OF_LINE_PATTERNS
+	};
+	loop_over_test_cases(givens);
+}

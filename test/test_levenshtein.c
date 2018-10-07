@@ -64,3 +64,17 @@ void test_levenshtein_matrix_with_single_removed_char() {
 	TEST_ASSERT_EQUAL_INT_ARRAY(expected_cost_matrix, m->cost_matrix, 20);
 	destroy_levenshtein_matrix(m);
 }
+
+void test_levenshtein_matrix_with_single_replaced_char() {
+	struct levenshtein_matrix *m = new_levenshtein_matrix("ab", "ac");
+	int expected_cost_matrix[] = {0, 1, 2,
+	                              1, 0, 1,
+	                              2, 1, 1};
+	TEST_ASSERT_NOT_NULL(m);
+	TEST_ASSERT_EQUAL_INT(2, m->height);
+	TEST_ASSERT_EQUAL_INT(2, m->width);
+	TEST_ASSERT_EQUAL_STRING("ab", m->str1);
+	TEST_ASSERT_EQUAL_STRING("ac", m->str2);
+	TEST_ASSERT_EQUAL_INT_ARRAY(expected_cost_matrix, m->cost_matrix, 9);
+	destroy_levenshtein_matrix(m);
+}
