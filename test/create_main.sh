@@ -21,7 +21,7 @@ create_prototypes() {
 		UNIT_TESTS=$(grep -e '^void test_.*(' $TEST_SUITE | sed -e 's/^void \(test_.*\)(.*/\1/')
 		for TEST in $UNIT_TESTS
 		do
-			echo "	void $TEST();"
+			echo "void $TEST();"
 		done
 		echo
 	done
@@ -29,6 +29,7 @@ create_prototypes() {
 
 main() {
 	echo 'int main() {'
+	echo '	int test_status = 0;'
 	echo
 }
 
@@ -40,6 +41,9 @@ create_test_suite() {
 	do
 		echo "	RUN_TEST($TEST);"
 	done
+	echo '	if (test_status == 0) {'
+	echo '		test_status = UnityEnd();'
+	echo '	}'
 	echo
 }
 
@@ -52,7 +56,7 @@ create_unit_tests() {
 }
 
 end() {
-	echo '	return UnityEnd();'
+	echo '	return test_status;'
 	echo '}'
 }
 
