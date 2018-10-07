@@ -3,11 +3,11 @@
 #include <modification.h>
 #include <levenshtein.h>
 
-struct modification *new_modification(enum modification_type type, struct modification *next) {
+struct modification *new_modification(enum modification_type type, const char *content, struct modification *next) {
 	struct modification *m = malloc(sizeof(struct modification));
 	if (m) {
 		m->type = type;
-		m->content = NULL;
+		m->content = content;
 		m->content_size = 1;
 		m->next = next;
 	}
@@ -57,14 +57,18 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		enum modification_type type = get_shortest_distance_type(m, y, x);
 
 		if (!head) {
-			head = new_modification(type, NULL);
+			head = new_modification(type, NULL, NULL);
 		} else if (head->type != type) {
-			struct modification *new_head = new_modification(type, head);
-			if (head->type == REMOVAL) {
-				head->content = &line1[y];
-			} else {
-				head->content = &line2[x];
+			const char *content;
+			struct modification *new_head = new_modification(type, NULL, head);
+			if (!head->content) {
+				if (head->type == REMOVAL) {
+					content = &line1[y];
+				} else {
+					content = &line2[x];
+				}
 			}
+			head->content = content;
 			head = new_head;
 		} else {
 			modification_increase(head);
@@ -82,14 +86,12 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		head->content = &line1[y];
 	}
 	if (x > 0) {
-		struct modification *new_head = new_modification(ADDING, head);
-		new_head->content = line2;
+		struct modification *new_head = new_modification(ADDING, line2, head);
 		new_head->content_size = x;
 		head = new_head;
 	}
 	if (y > 0) {
-		struct modification *new_head = new_modification(REMOVAL, head);
-		new_head->content = line1;
+		struct modification *new_head = new_modification(REMOVAL, line1, head);
 		new_head->content_size = y;
 		head->content = line2;
 		head = new_head;
@@ -107,15 +109,13 @@ struct modification *extract_modification_steps(const char *line1, const char *l
 	}
 
 	if (line1[0] == '\0') {
-		current = new_modification(ADDING, NULL);
-		current->content = line2;
+		current = new_modification(ADDING, line2, NULL);
 		current->content_size = strlen(line2);
 		return current;
 	}
 
 	if (line2[0] == '\0') {
-		current = new_modification(REMOVAL, NULL);
-		current->content = line1;
+		current = new_modification(REMOVAL, line1, NULL);
 		current->content_size = strlen(line1);
 		return current;
 	}
