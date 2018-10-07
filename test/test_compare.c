@@ -68,6 +68,19 @@ void test_GivenComparedLineWithMissingChars_The_RemovedCharactersAreEmphazedWith
 void test_SubstitutionAreMarkedAsTheResultOfARemovalAndAnAdding() {
 	struct line_patterns givens[] = {
 		{.reference = "a", .compared = "b", .expected = RED("a")GREEN("b")},
+		{.reference = "ab", .compared = "ac", .expected = "a"RED("b")GREEN("c")},
+		{.reference = "ab", .compared = "cb", .expected =RED("a")GREEN("c")"b"},
+		{.reference = "abc", .compared = "adc", .expected ="a"RED("b")GREEN("d")"c"},
+
+		{.reference = "ital", .compared = "alie", .expected = RED("it")"al"GREEN("ie")},
+		{.reference = "itie", .compared = "alie", .expected =RED("it")GREEN("al")"ie"},
+
+		{.reference = "ital", .compared = "itie", .expected = "it"RED("al")GREEN("ie")},
+		{.reference = "itie", .compared = "ital", .expected = "it"RED("ie")GREEN("al")},
+
+		{.reference = "alie", .compared = "itie", .expected = RED("al")GREEN("it")"ie"},
+		// XXX : This specific case is not handled correctly at the moment
+		//{.reference = "alie", .compared = "ital", .expected = GREEN("it")"al"RED("ie")},
 		END_OF_LINE_PATTERNS
 	};
 	loop_over_test_cases(givens);
