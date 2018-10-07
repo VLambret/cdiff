@@ -8,7 +8,7 @@ struct modification *new_modification(enum modification_type type) {
 	if (m) {
 		m->type = type;
 		m->content = NULL;
-		m->content_size = 0;
+		m->content_size = 1;
 		m->next = NULL;
 	}
 	return m;
@@ -19,6 +19,10 @@ void modification_destroy(struct modification *m) {
 		modification_destroy(m->next);
 		free(m);
 	}
+}
+
+void modification_increase(struct modification *m) {
+	m->content_size++;
 }
 
 static enum modification_type get_shortest_distance_type(struct levenshtein_matrix *m, int y, int x) {
@@ -63,9 +67,9 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 			}
 			new_head->next = head;
 			head = new_head;
+		} else {
+			modification_increase(head);
 		}
-
-		head->content_size++;
 		if (type == TEXT || type == REMOVAL) {
 			if (y > 0) y--;
 		}
@@ -93,7 +97,7 @@ static struct modification *extract_modification_steps_non_trivial(const char *l
 		head = new_head;
 	}
 
-	destroy_levenshtein_matrix(m);	
+	destroy_levenshtein_matrix(m);
 	return head;
 }
 
