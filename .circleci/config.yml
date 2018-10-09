@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    steps:
+      - checkout
+      - run:
+          name: Prerequisites
+          command: sudo apt-get install make gcc bats gcovr valgrind
+      - run:
+          name: Build
+          command: make
+      - run:
+          name: Test
+          command: make coverage
