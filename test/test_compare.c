@@ -6,6 +6,8 @@
 
 #define END_OF_LINE_PATTERNS {.reference = NULL, .compared = NULL, .expected = NULL}
 
+#define MAX_LINE_SIZE 4096
+
 struct line_patterns {
 	char * reference;
 	char * compared;
