@@ -11,6 +11,15 @@ static int cost(struct levenshtein_matrix *m, int y, int x) {
 	}
 }
 
+static void initialize_matrix(struct levenshtein_matrix *m) {
+	for (int y = 0; y <= m->height; y++) {
+		m->cost_matrix[y * (m->width + 1) + 0] = y;
+	}
+	for (int x = 0; x <= m->width; x++) {
+		m->cost_matrix[0 * (m->width + 1) + x] = x;
+	}
+}
+
 struct levenshtein_matrix *new_levenshtein_matrix(const char *string1, const char *string2) {
 	struct levenshtein_matrix *m = malloc(sizeof(struct levenshtein_matrix));
 	m->height = strlen(string1);
@@ -23,12 +32,7 @@ struct levenshtein_matrix *new_levenshtein_matrix(const char *string1, const cha
 		return NULL;
 	}
 
-	for (int y = 0; y <= m->height; y++) {
-		m->cost_matrix[y * (m->width + 1) + 0] = y;
-	}
-	for (int x = 0; x <= m->width; x++) {
-		m->cost_matrix[0 * (m->width + 1) + x] = x;
-	}
+	initialize_matrix(m);
 
 	for (int y = 1; y <= m->height; y++) {
 		for (int x = 1; x <= m->width; x++) {
