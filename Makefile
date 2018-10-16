@@ -15,6 +15,7 @@ clean : clean_coverage_files
 	rm -f build/* *.info *.gcno *.gcda
 	rm -rf ${COVERAGE_DIR}
 	rm -rf test/unit_test_main.c
+	rm -f profile.txt
 
 clean_coverage_files :
 	rm -f $$(find -name '*.gcno' -o -name '*.gcda')
@@ -45,6 +46,10 @@ build/unit_tests :  test/unit_test_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FIL
 test/unit_test_main.c : test/create_main.sh ${TEST_FILES}
 	./$< test > $@
 
+################################################################################
+# TOOLS
+################################################################################
+
 coverage : test
 	gcovr -r . --exclude="test*"
 	mkdir -p ${COVERAGE_DIR}
@@ -52,6 +57,14 @@ coverage : test
 
 valgrind : build/cdiff
 	valgrind --leak-check=full build/unit_tests > /dev/null
+
+build/cdiff.prof : src/main.c ${SRC_FILES}
+	gcc -Isrc -O3 -pg $^ -o $@
+
+profile.txt : build/cdiff.prof
+	$< $$(cat test/samples/bigA.txt) $$(cat test/samples/bigAB.txt)
+	gprof $< gmon.out > $@
+	rm -f gmon.out
 
 gdb : build/cdiff
 	gdb $<
