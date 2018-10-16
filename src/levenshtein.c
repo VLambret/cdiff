@@ -20,6 +20,28 @@ static void initialize_matrix(struct levenshtein_matrix *m) {
 	}
 }
 
+static uint32_t compute_lowest_cost(struct levenshtein_matrix *m, int y, int x) {
+	uint32_t remove_cost = m->cost_matrix[y * (m->width + 1) + (x - 1)] + 1;
+	uint32_t insert_cost = m->cost_matrix[(y - 1) * (m->width + 1) + x] + 1;
+	uint32_t substitute_cost = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)] + cost(m, y - 1, x - 1);
+
+	if (substitute_cost <= remove_cost && substitute_cost <= insert_cost) {
+		return substitute_cost;
+	} else if (remove_cost <= insert_cost) {
+		return remove_cost;
+	} else {
+		return insert_cost;
+	}
+}
+
+static void fill_matrix(struct levenshtein_matrix *m) {
+	for (int y = 1; y <= m->height; y++) {
+		for (int x = 1; x <= m->width; x++) {
+			m->cost_matrix[y * (m->width + 1) + x] = compute_lowest_cost(m, y, x);
+		}
+	}
+}
+
 struct levenshtein_matrix *new_levenshtein_matrix(const char *string1, const char *string2) {
 	struct levenshtein_matrix *m = malloc(sizeof(struct levenshtein_matrix));
 	m->height = strlen(string1);
@@ -33,22 +55,7 @@ struct levenshtein_matrix *new_levenshtein_matrix(const char *string1, const cha
 	}
 
 	initialize_matrix(m);
-
-	for (int y = 1; y <= m->height; y++) {
-		for (int x = 1; x <= m->width; x++) {
-			uint32_t remove_cost = m->cost_matrix[y * (m->width + 1) + (x - 1)] + 1;
-			uint32_t insert_cost = m->cost_matrix[(y - 1) * (m->width + 1) + x] + 1;
-			uint32_t substitute_cost = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)] + cost(m, y - 1, x - 1);
-
-			if (substitute_cost <= remove_cost && substitute_cost <= insert_cost) {
-				m->cost_matrix[y * (m->width + 1) + x] = substitute_cost;
-			} else if (remove_cost <= insert_cost) {
-				m->cost_matrix[y * (m->width + 1) + x] = remove_cost;
-			} else {
-				m->cost_matrix[y * (m->width + 1) + x] = insert_cost;
-			}
-		}
-	}
+	fill_matrix(m);
 
 	return m;
 }
