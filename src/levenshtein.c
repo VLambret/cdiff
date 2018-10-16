@@ -17,7 +17,7 @@ struct levenshtein_matrix *new_levenshtein_matrix(const char *string1, const cha
 	m->width = strlen(string2);
 	m->str1 = strdup(string1);
 	m->str2 = strdup(string2);
-	m->cost_matrix = malloc((m->height + 1) * (m->width + 1) * sizeof(int));
+	m->cost_matrix = malloc((m->height + 1) * (m->width + 1) * sizeof(uint32_t));
 
 	if (!m->str1 || !m->str2 || !m->cost_matrix) {
 		return NULL;
@@ -32,9 +32,9 @@ struct levenshtein_matrix *new_levenshtein_matrix(const char *string1, const cha
 
 	for (int y = 1; y <= m->height; y++) {
 		for (int x = 1; x <= m->width; x++) {
-			char remove_cost = m->cost_matrix[y * (m->width + 1) + (x - 1)] + 1;
-			char insert_cost = m->cost_matrix[(y - 1) * (m->width + 1) + x] + 1;
-			char substitute_cost = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)] + cost(m, y - 1, x - 1);
+			uint32_t remove_cost = m->cost_matrix[y * (m->width + 1) + (x - 1)] + 1;
+			uint32_t insert_cost = m->cost_matrix[(y - 1) * (m->width + 1) + x] + 1;
+			uint32_t substitute_cost = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)] + cost(m, y - 1, x - 1);
 
 			if (substitute_cost <= remove_cost && substitute_cost <= insert_cost) {
 				m->cost_matrix[y * (m->width + 1) + x] = substitute_cost;

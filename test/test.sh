@@ -41,3 +41,11 @@ teardown() {
 	[ $status -eq 0 ]
 	[ "$output" = "$STRING2" ]
 }
+
+@test "Cdiff mut be able to compare larges strings" {
+	MAX_STRING=$(echo -n a{1..10000} | sed -e 's/[^a]//g')
+
+	run $CDIFF $MAX_STRING $MAX_STRING
+	[ $status -eq 0 ]
+	[ "$output" = "$MAX_STRING" ]
+}
