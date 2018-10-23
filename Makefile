@@ -37,7 +37,7 @@ src/modification.c : src/modification.h
 
 test : build/cdiff build/unit_tests
 	./build/unit_tests
-	bats test/test.sh
+	bats test/integration/*.bats.sh
 	make valgrind
 
 build/unit_tests :  test/unit_test_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FILES}
