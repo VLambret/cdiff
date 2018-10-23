@@ -5,10 +5,22 @@
 
 #define COLOR_OVERHEAD_SIZE 10
 
+static void print_usage(FILE *output, char *executable) {
+	fprintf(output, "usage : %s string1 string2\n", executable);
+}
+
 int main(int argc, char **argv) {
 	char *result;
+
+	if (argc == 2 && strcmp(argv[1], "--help") == 0) {
+		print_usage(stdout, argv[0]);
+		exit(EXIT_SUCCESS);
+
+	}
+
 	if (argc != 3) {
-		fprintf(stderr, "usage : %s string1 string2", argv[0]);
+		fprintf(stderr, "error : type %s --help for help\n", argv[0]);
+		print_usage(stderr, argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -22,5 +34,5 @@ int main(int argc, char **argv) {
 	printf("%s\n", result);
 	free(result);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -15,6 +15,12 @@ teardown() {
 	[ $status -ne 0 ]
 }
 
+@test "Passing --help option print program usage on standard output" {
+	run $CDIFF --help > /dev/null
+	[ $status -eq 0 ]
+	[ $output != "" ]
+}
+
 @test "Given a single string Cdiff fails" {
 	run $CDIFF $STRING1 > /dev/null
 	[ $status -ne 0 ]
