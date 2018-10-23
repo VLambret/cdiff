@@ -6,15 +6,15 @@ COVERAGE_DIR=coverage
 .PHONY : all clean test
 
 SRC_FILES=$(filter-out src/main.c, $(wildcard src/*.c))
-TEST_FILES=$(wildcard test/test_*.c)
-UNITY_FILES=test/unity_src/unity.c
+TEST_FILES=$(wildcard test/unit/test_*.c)
+UNITY_FILES=test/unit/unity_src/unity.c
 
 all : build/cdiff
 
 clean : clean_coverage_files
 	rm -f build/* *.info *.gcno *.gcda
 	rm -rf ${COVERAGE_DIR}
-	rm -rf test/unit_test_main.c
+	rm -rf test/unit/unit_main.c
 	rm -f profile.txt
 
 clean_coverage_files :
@@ -40,11 +40,11 @@ test : build/cdiff build/unit_tests
 	bats test/integration/*.bats.sh
 	make valgrind
 
-build/unit_tests :  test/unit_test_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FILES}
+build/unit_tests :  test/unit/unit_main.c ${SRC_FILES} ${TEST_FILES} ${UNITY_FILES}
 	${CC} -DUNITY_OUTPUT_COLOR -Itest/unity_src $^ -o $@
 
-test/unit_test_main.c : test/create_main.sh ${TEST_FILES}
-	./$< test > $@
+test/unit/unit_main.c : test/unit/create_main.sh ${TEST_FILES}
+	./$< test/unit/ > $@
 
 ################################################################################
 # TOOLS
