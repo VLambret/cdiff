@@ -20,10 +20,14 @@ static void initialize_matrix(struct levenshtein_matrix *m) {
 	}
 }
 
+static uint32_t matrix_cost(struct levenshtein_matrix *m, int y, int x) {
+	return m->cost_matrix[y * (m->width + 1) + x];
+}
+
 static uint32_t compute_lowest_cost(struct levenshtein_matrix *m, int y, int x) {
-	uint32_t remove_cost = m->cost_matrix[y * (m->width + 1) + (x - 1)] + 1;
-	uint32_t insert_cost = m->cost_matrix[(y - 1) * (m->width + 1) + x] + 1;
-	uint32_t substitute_cost = m->cost_matrix[(y - 1) * (m->width + 1) + (x - 1)] + cost(m, y - 1, x - 1);
+	uint32_t remove_cost = matrix_cost(m, y, x - 1) + 1;
+	uint32_t insert_cost = matrix_cost(m, y - 1, x) + 1;
+	uint32_t substitute_cost = matrix_cost(m, y - 1, x - 1) + cost(m, y - 1, x - 1);
 
 	if (substitute_cost <= remove_cost && substitute_cost <= insert_cost) {
 		return substitute_cost;
