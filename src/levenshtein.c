@@ -1,14 +1,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "levenshtein.h"
 
-static int cost(struct levenshtein_matrix *m, int y, int x) {
-	if (m->str1[y] == m->str2[x]) {
-		return 0;
-	} else {
-		return 1;
-	}
+uint32_t min3(uint32_t val1, uint32_t val2, uint32_t val3) {
+	if (val1 <= val2 && val1 <= val3)
+		return val1;
+	if (val2 <= val3)
+		return val2;
+	return val3;
+}
+
+bool is_identity(struct levenshtein_matrix *m, int y, int x) {
+	return m->str1[y] == m->str2[x];
 }
 
 static void initialize_matrix(struct levenshtein_matrix *m) {
@@ -25,17 +30,16 @@ static uint32_t matrix_cost(struct levenshtein_matrix *m, int y, int x) {
 }
 
 static uint32_t compute_lowest_cost(struct levenshtein_matrix *m, int y, int x) {
-	uint32_t remove_cost = matrix_cost(m, y, x - 1) + 1;
-	uint32_t insert_cost = matrix_cost(m, y - 1, x) + 1;
-	uint32_t substitute_cost = matrix_cost(m, y - 1, x - 1) + cost(m, y - 1, x - 1);
-
-	if (substitute_cost <= remove_cost && substitute_cost <= insert_cost) {
-		return substitute_cost;
-	} else if (remove_cost <= insert_cost) {
-		return remove_cost;
-	} else {
-		return insert_cost;
+	uint32_t previous_cost = matrix_cost(m, y - 1, x - 1);
+	if (is_identity(m, y - 1, x - 1)) {
+		return previous_cost;
 	}
+
+	uint32_t remove_cost = matrix_cost(m, y, x - 1);
+	uint32_t insert_cost = matrix_cost(m, y - 1, x);
+	uint32_t substitute_cost = previous_cost;
+
+	return min3(remove_cost, insert_cost, substitute_cost) + 1;
 }
 
 static void fill_matrix(struct levenshtein_matrix *m) {
