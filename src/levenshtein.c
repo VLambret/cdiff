@@ -16,17 +16,21 @@ bool is_identity(struct levenshtein_matrix *m, int y, int x) {
 	return m->str1[y] == m->str2[x];
 }
 
-static void initialize_matrix(struct levenshtein_matrix *m) {
-	for (int y = 0; y <= m->height; y++) {
-		m->cost_matrix[y * (m->width + 1) + 0] = y;
-	}
-	for (int x = 0; x <= m->width; x++) {
-		m->cost_matrix[0 * (m->width + 1) + x] = x;
-	}
-}
-
 static uint32_t matrix_cost(struct levenshtein_matrix *m, int y, int x) {
 	return m->cost_matrix[y * (m->width + 1) + x];
+}
+
+static void matrix_set_cost(struct levenshtein_matrix *m, int y, int x, uint32_t cost) {
+	m->cost_matrix[y * (m->width + 1) + x] = cost;
+}
+
+static void initialize_matrix(struct levenshtein_matrix *m) {
+	for (int y = 0; y <= m->height; y++) {
+		matrix_set_cost(m, y, 0, y);
+	}
+	for (int x = 0; x <= m->width; x++) {
+		matrix_set_cost(m, 0, x, x);
+	}
 }
 
 static uint32_t compute_lowest_cost(struct levenshtein_matrix *m, int y, int x) {
@@ -45,7 +49,7 @@ static uint32_t compute_lowest_cost(struct levenshtein_matrix *m, int y, int x) 
 static void fill_matrix(struct levenshtein_matrix *m) {
 	for (int y = 1; y <= m->height; y++) {
 		for (int x = 1; x <= m->width; x++) {
-			m->cost_matrix[y * (m->width + 1) + x] = compute_lowest_cost(m, y, x);
+			matrix_set_cost(m, y, x, compute_lowest_cost(m, y, x));
 		}
 	}
 }
