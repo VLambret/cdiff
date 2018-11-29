@@ -55,7 +55,7 @@ coverage : test
 	mkdir -p ${COVERAGE_DIR}
 	gcovr -r . --exclude="test*" --html --html-details -o ${COVERAGE_DIR}/index.html
 
-valgrind : build/cdiff
+valgrind : build/unit_tests
 	valgrind --leak-check=full build/unit_tests > /dev/null
 
 build/cdiff.prof : src/main.c ${SRC_FILES}
